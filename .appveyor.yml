@@ -5,9 +5,9 @@ platform:
 configuration: Release
 
 os :
-- Visual Studio 2013
-- Visual Studio 2015
 - Visual Studio 2017
+- Visual Studio 2015
+- Visual Studio 2013
 
 test_script:
 - java eSketchDemo
@@ -40,7 +40,6 @@ deploy:
   provider: GitHub
   auth_token:
     secure: kKebvPLjikQbZ7E1Vm8omoYc9K0wOcKxjWsglp3+D4fV9ev/FaWr8ZBI+AseOTis
-  artifact: $(zip)
   draft: false
   prerelease: false
   on:

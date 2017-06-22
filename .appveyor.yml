@@ -4,9 +4,6 @@ environment:
   ext: dll
   dir: $(affix)-java-v$(version)
   zip: $(platform).zip
-  environment:
-  version: 20170620
-  affix: esketch
   matrix:
     - jdk: "1.6.0"
     - jdk: "1.7.0"
@@ -24,8 +21,8 @@ os :
 - Visual Studio 2013
 
 test_script:
-- C:\Program Files\Java\jdk$(jdk)\bin\java SOFTWARE_TAGDemo
-# - java -Djava.library.path=x64/Release SOFTWARE_TAGDemo
+- C:\Program Files\Java\jdk$(jdk)\bin\java eSketchDemo
+# - java -Djava.library.path=x64/Release eSketchDemo
 
 # matrix:
   # allow_failures:

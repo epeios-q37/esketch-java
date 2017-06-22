@@ -5,9 +5,10 @@ environment:
   dir: $(affix)-java-v$(version)
   zip: $(platform).zip
   matrix:
-    - jdk: "1.6.0"
-    - jdk: "1.7.0"
-    - jdk: "1.8.0"
+    - jdk_ver: "1.6.0"
+    - jdk_ver: "1.7.0"
+    - jdk_ver: "1.8.0"
+  jdk=C:\Program\ Files\Java\jdk$(jdk_ver)\bin\
 
 platform:
 # - x86
@@ -21,7 +22,8 @@ os :
 - Visual Studio 2013
 
 test_script:
-- C:\Program Files\Java\jdk$(jdk)\bin\java eSketchDemo
+- $(jdk)javac src/*.java -d .
+- $(jdk)java eSketchDemo
 # - java -Djava.library.path=x64/Release eSketchDemo
 
 # matrix:

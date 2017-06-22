@@ -21,7 +21,7 @@
   <Import Project="Windows.targets"/>
   <Import Project="Details.props"/>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>62dcb38d-61f6-43c5-be0a-a7d950882025</ProjectGuid>
+    <ProjectGuid>e9bc8445-28f6-489d-9788-f9401624990f</ProjectGuid>
     <RootNamespace>esketchjre</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
@@ -44,9 +44,7 @@
     <IncludePath>$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;src/epeios;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
-    <PreBuildEvent>
-      <Command>javac src/*.java -d .</Command>
-    </PreBuildEvent>
+    <PreBuildEvent/>
     <PostBuildEvent>
       <Command>copy $(TargetPath) $(ProjectDir)</Command>
     </PostBuildEvent>

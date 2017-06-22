@@ -1,5 +1,19 @@
+environment:
+  version: 20170620
+  affix: esketch
+  ext: dll
+  dir: $(affix)-java-v$(version)
+  zip: $(platform).zip
+  environment:
+  version: 20170620
+  affix: esketch
+  matrix:
+    - jdk: "1.6.0"
+    - jdk: "1.7.0"
+    - jdk: "1.8.0"
+
 platform:
-# - Win32
+# - x86
 - x64
 
 configuration: Release
@@ -10,21 +24,14 @@ os :
 - Visual Studio 2013
 
 test_script:
-- java eSketchDemo
-# - java -Djava.library.path=x64/Release eSketchDemo
+- C:\Program Files\Java\jdk$(jdk)\bin\java SOFTWARE_TAGDemo
+# - java -Djava.library.path=x64/Release SOFTWARE_TAGDemo
 
 # matrix:
   # allow_failures:
   # - os: Visual Studio 2017
 
 skip_tags: true
-
-environment:
-  version: 20170519.1
-  affix: esketch
-  ext: dll
-  dir: $(affix)-java-$(version)
-  zip: $(platform).zip
 
 after_build:
 - mkdir %dir% || exit 1
@@ -35,7 +42,7 @@ artifacts:
 - path: $(zip)
 
 deploy:
-  tag: $(version)
+  tag: v$(version)
   description: ''
   provider: GitHub
   auth_token:

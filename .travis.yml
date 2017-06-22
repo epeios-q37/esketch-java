@@ -14,4 +14,4 @@ language: java
 
 script:
 - make -j 4
-- java -Djava.library.path=. eSketchDemo
+- java -Djava.library.path=. SOFTWARE_TAGDemo

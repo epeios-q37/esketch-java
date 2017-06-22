@@ -21,7 +21,7 @@ os :
 # - Visual Studio 2013
 
 test_script:
-- set JDK="Program\ Files\Java\jdk%jdk_ver%\bin\"
+- set JDK="Program Files\Java\jdk%jdk_ver%\bin\"
 - echo %JDK%
 - C:\%JDK%javac src/*.java -d .
 - C:\%JDK%java eSketchDemo

@@ -8,7 +8,6 @@ environment:
     - jdk_ver: "1.6.0"
     - jdk_ver: "1.7.0"
     - jdk_ver: "1.8.0"
-  jdk: "C:\\Program\\ Files\\Java\\jdk$(jdk_ver)\\bin\\"
 
 platform:
 # - x86
@@ -22,9 +21,10 @@ os :
 - Visual Studio 2013
 
 test_script:
-- echo %jdk%
-- %jdk%javac src/*.java -d .
-- %jdk%java eSketchDemo
+- set JDK="C:\\Program\\ Files\\Java\\jdk$(jdk_ver)\\bin\\"
+- echo %JDK%
+- %JDK%javac src/*.java -d .
+- %JDK%java eSketchDemo
 # - java -Djava.library.path=x64/Release eSketchDemo
 
 # matrix:

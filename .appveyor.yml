@@ -6,12 +6,12 @@ environment:
   zip: $(platform).zip
   matrix:
     - jdk_ver: "1.6.0"
-    - jdk_ver: "1.7.0"
-    - jdk_ver: "1.8.0"
+ #   - jdk_ver: "1.7.0"
+ #   - jdk_ver: "1.8.0"
 
 platform:
 - x86
-- x64
+# - x64
 
 configuration: Release
 
@@ -22,7 +22,7 @@ os :
 
 test_script:
 - set oddity=""
-- if "%platform%"=="x86" set oddity=" (x86)"
+- if "%platform%"=="x86" set oddity= (x86)
 - set JDK="Program Files%oddity%\Java\jdk%jdk_ver%\bin\"
 - echo %JDK%
 - C:\%JDK%javac src/*.java -d .

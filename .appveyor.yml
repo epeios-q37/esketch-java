@@ -22,8 +22,9 @@ os :
 - Visual Studio 2013
 
 test_script:
-- $(jdk)javac src/*.java -d .
-- $(jdk)java eSketchDemo
+- echo %jdk%
+- %jdk%javac src/*.java -d .
+- %jdk%java eSketchDemo
 # - java -Djava.library.path=x64/Release eSketchDemo
 
 # matrix:

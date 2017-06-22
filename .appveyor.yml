@@ -8,7 +8,7 @@ environment:
     - jdk_ver: "1.6.0"
     - jdk_ver: "1.7.0"
     - jdk_ver: "1.8.0"
-  jdk=C:\Program\ Files\Java\jdk$(jdk_ver)\bin\
+  jdk: "C:\Program\ Files\Java\jdk$(jdk_ver)\bin\"
 
 platform:
 # - x86

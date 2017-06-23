@@ -3,14 +3,14 @@ environment:
   affix: esketch
   ext: dll
   dir: $(affix)-java-v$(version)
-  zip: $(platform).zip
+  zip: $(affix)jre-$(version)-win-java-v$(jdk_ver)-$(platform).zip
   matrix:
     - jdk_ver: "1.6.0"
-#    - jdk_ver: "1.7.0"
+    - jdk_ver: "1.7.0"
     - jdk_ver: "1.8.0"
 
 platform:
-# - x86
+- x86
 - x64
 
 configuration: Release
@@ -25,7 +25,6 @@ test_script:
 - if "%platform%"=="x86" set oddity= (x86)
 - set JDK="Program Files%oddity%/Java/jdk%jdk_ver%/bin/"
 - echo %JDK%
-- ls -la
 - C:/%JDK%javac src/*.java -d .
 - C:/%JDK%java eSketchDemo
 # - java -Djava.library.path=x64/Release eSketchDemo

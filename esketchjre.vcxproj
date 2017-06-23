@@ -21,7 +21,7 @@
   <Import Project="Windows.targets"/>
   <Import Project="Details.props"/>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>1c777537-8c80-4786-8bd3-8a21d98db224</ProjectGuid>
+    <ProjectGuid>85c1fb4d-9274-4ee1-ba58-9b6baa01e9f5</ProjectGuid>
     <RootNamespace>esketchjre</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>

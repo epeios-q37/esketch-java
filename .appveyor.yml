@@ -26,8 +26,8 @@ test_script:
 - set JDK=Program Files%oddity%\Java\jdk%jdk_ver%\bin\
 - echo %JDK%
 - ls -la
-- "C:\%JDK%javac" src/*.java -d .
-- "C:\%JDK%java" eSketchDemo
+- "C:\\%JDK%javac" src/*.java -d .
+- "C:\\%JDK%java" eSketchDemo
 # - java -Djava.library.path=x64/Release eSketchDemo
 
 # matrix:

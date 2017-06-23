@@ -3,6 +3,19 @@ matrix:
     - os: linux
       dist: trusty
       compiler: g++
+      jdk: oraclejdk8
+    - os: linux
+      dist: trusty
+      compiler: g++
+      jdk: oraclejdk7
+    - os: linux
+      dist: trusty
+      compiler: g++
+      jdk: openjdk7
+    - os: linux
+      dist: trusty
+      compiler: g++
+      jdk: openjdk6
     - os: linux
       compiler: clang++
 # Probably due to 'language' setting below, despite above line, the 'CXX' environment have to be set .
@@ -13,5 +26,5 @@ matrix:
 language: java
 
 script:
-- make -j 4
+- make -j
 - java -Djava.library.path=. eSketchDemo

@@ -3,21 +3,13 @@ matrix:
     - os: linux
       dist: trusty
       compiler: g++
-      jdk: oraclejdk8
     - os: linux
       dist: trusty
       compiler: g++
-      jdk: oraclejdk7
-    - os: linux
-      dist: trusty
-      compiler: g++
-      jdk: openjdk7
-    - os: linux
-      dist: trusty
-      compiler: g++
-      jdk: openjdk6
+      jdk: openjdk
     - os: linux
       compiler: clang++
+      dist: trusty
 # Probably due to 'language' setting below, despite above line, the 'CXX' environment have to be set .
       env: CXX=clang++
     - os: osx

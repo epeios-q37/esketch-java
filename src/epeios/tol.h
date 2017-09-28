@@ -65,7 +65,11 @@
 
 # include "bso.h"
 
-// Predcleration
+// Predeclarations
+namespace uys {
+	struct sHook;
+}
+
 namespace ags {
 	class aggregated_storage_;
 }
@@ -416,6 +420,74 @@ ex. : 'qCOVER2( a, b )' -> 'a, b' */
 # define qCOVER6(a, b, c, d, e, f)		a, b, c, d, e, f
 // To modify using macros variadics ?
 
+# define qTMIMICd( type, alias )\
+class d##alias\
+: public d##type\
+{\
+public:\
+	d##alias( s &S )\
+	: d##type( S )\
+	{}\
+	struct s\
+	: public d##type::s\
+	{};\
+	d##alias &operator =( const d##alias &S )\
+	{\
+		((d##type *)this)->operator =( S );\
+\
+		return *this;\
+	}\
+	d##alias &operator =( const d##type &T )\
+	{\
+		((d##type *)this)->operator =( T );\
+		\
+		return *this;\
+	}\
+	const d##type operator *( void ) const\
+	{\
+		return *this;\
+	}\
+};
+
+# define qTMIMICw( type, alias )\
+class w##alias\
+: public d##alias\
+{\
+public:\
+	d##alias::s static_;\
+	w##alias( void )\
+	: d##alias( static_ )\
+	{\
+		reset( false );\
+	}\
+	~w##alias( void )\
+	{\
+		reset( true );\
+	}\
+	w##alias &operator =( const w##alias &S )\
+	{\
+		d##alias::operator =( S );\
+\
+		return *this;\
+	}\
+	w##alias &operator =( const d##alias &S )\
+	{\
+		d##alias::operator =( S );\
+\
+		return *this;\
+	}\
+	w##alias &operator =( const d##type &T )\
+	{\
+		((d##type *)this)->operator =( T );\
+		\
+		return *this;\
+	}\
+};
+
+#define qTMIMICdw( type, alias )\
+qTMIMICd( type, alias )\
+qTMIMICw( type, alias )
+
 # define qMIMICs( type, alias )	E_TMIMIC__( type, alias )
 
 
@@ -428,7 +500,11 @@ ex. : 'qCOVER2( a, b )' -> 'a, b' */
 	{\
 	}
 
-# define qTCLONE( name, alias )	E_TTCLONE__( name, alias )
+# define qTCLONE( type, alias )\
+	class alias\
+	: public type\
+	{\
+	}
 
 # define qTCLONEd( type, alias )\
 	class alias\
@@ -578,9 +654,13 @@ namespace tol {
 //			S_.Object.reset( P );	// The object is already destroyed by the one which features the reference.
 		}
 		qCVDTOR( dObject );
-		void plug( class ags::aggregated_storage_ * )
+		void plug( uys::sHook &Hook )
 		{
-			// Pour des raisons de standardisation.
+			// Standardization.
+		}
+		void plug( ags::aggregated_storage_ *AS )
+		{
+			// Standardization.
 		}
 		dObject &operator =( const dObject &O )
 		{
@@ -2257,6 +2337,31 @@ namespace tol {
 	}
 
 
+	template <typename arg> inline arg Same_(
+		arg Arg1,
+		arg Arg2 )
+	{
+		if ( Arg1 != Arg2 )
+			qRFwk();
+
+		return Arg1;
+	}
+
+	template <typename arg, typename... args> inline arg Same_(
+		arg Arg1,
+		arg Arg2,
+		args... Args )
+	{
+		return Same_( Same_( Arg1, Arg2 ), Args... );
+	}
+
+	// Issues an error if all arguments are not of same value, else returns this value.
+	template <typename arg, typename... args> inline arg Same(
+		arg Arg,
+		args... Args )
+	{
+		return Same_( Arg, Args... );
+	}
 }
 
 

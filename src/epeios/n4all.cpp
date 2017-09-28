@@ -17,39 +17,9 @@
 	along with the Epeios framework.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#define JRE_COMPILATION_
+#define N4ALL_COMPILATION_
 
-#include "jre.h"
+#include "n4all.h"
 
-using namespace jre;
+using namespace n4all;
 
-fdr::sSize jre::rInputStreamIDriver::FDRRead(
-	fdr::sSize Maximum,
-	fdr::sByte *Buffer )
-{
-qRH
-	jbyteArray Array = NULL;
-	JNIEnv *Env = NULL;
-qRB
-	if ( Maximum > 5 )
-		Maximum = 5;
-
-	Env = jniq::GetEnv( NULL );
-
-	Array = Env->NewByteArray( (jint)Maximum );
-
-	if ( Array == NULL )
-		qRAlc();
-
-	Maximum = Stream_.Read( Array, 0, (jint)Maximum, Env );
-
-	if ( Maximum != -1 )
-		Env->GetByteArrayRegion( Array, 0, (jint)Maximum, (jbyte *)Buffer );
-	else
-		Maximum = 0;
-qRR
-qRT
-	// No need to 'delete' 'Array'.
-qRE
-	return Maximum;
-}

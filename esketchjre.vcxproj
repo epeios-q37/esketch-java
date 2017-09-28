@@ -21,7 +21,7 @@
   <Import Project="Windows.targets"/>
   <Import Project="Details.props"/>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>85c1fb4d-9274-4ee1-ba58-9b6baa01e9f5</ProjectGuid>
+    <ProjectGuid>deedf83f-421f-4460-9aae-167f4d5370b1</ProjectGuid>
     <RootNamespace>esketchjre</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
@@ -41,7 +41,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform"/>
   </ImportGroup>
   <PropertyGroup>
-    <IncludePath>$(JAVA_HOME)\include;$(JAVA_HOME)\include\win32;src/epeios;$(IncludePath)</IncludePath>
+    <IncludePath>src/epeios;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <PreBuildEvent/>
@@ -60,6 +60,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src/esketchjre.cpp"/>
+    <ClCompile Include="src/registry.cpp"/>
     <ClCompile Include="src/epeios/ags.cpp"/>
     <ClCompile Include="src/epeios/aem.cpp"/>
     <ClCompile Include="src/epeios/bch.cpp"/>
@@ -99,6 +100,7 @@
     <ClCompile Include="src/epeios/sdr.cpp"/>
     <ClCompile Include="src/epeios/stkbse.cpp"/>
     <ClCompile Include="src/epeios/stkbch.cpp"/>
+    <ClCompile Include="src/epeios/stkcrt.cpp"/>
     <ClCompile Include="src/epeios/stkctn.cpp"/>
     <ClCompile Include="src/epeios/str.cpp"/>
     <ClCompile Include="src/epeios/strng.cpp"/>
@@ -112,6 +114,8 @@
     <ClCompile Include="src/epeios/llio.cpp"/>
     <ClCompile Include="src/epeios/wllio.cpp"/>
     <ClCompile Include="src/epeios/dlbrry.cpp"/>
+    <ClCompile Include="src/epeios/n4all.cpp"/>
+    <ClCompile Include="src/epeios/n4jre.cpp"/>
     <ClCompile Include="src/epeios/plgn.cpp"/>
     <ClCompile Include="src/epeios/plgncore.cpp"/>
     <ClCompile Include="src/epeios/tht.cpp"/>
@@ -130,10 +134,8 @@
     <ClCompile Include="src/epeios/sclerror.cpp"/>
     <ClCompile Include="src/epeios/scllocale.cpp"/>
     <ClCompile Include="src/epeios/sclrgstry.cpp"/>
+    <ClCompile Include="src/epeios/scln4a.cpp"/>
     <ClCompile Include="src/epeios/scljre.cpp"/>
-    <ClCompile Include="src/epeios/jniq.cpp"/>
-    <ClCompile Include="src/epeios/jre.cpp"/>
-    <ClCompile Include="src/epeios/jrebse.cpp"/>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
 </Project>

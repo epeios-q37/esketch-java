@@ -21,8 +21,6 @@
 
 #include "scljre.h"
 
-#include "jre.h"
-
 #include "sclerror.h"
 #include "scllocale.h"
 #include "sclmisc.h"
@@ -31,11 +29,51 @@
 
 using namespace scljre;
 
+fdr::sSize scljre::rInputStreamIDriver::FDRRead(
+	fdr::sSize Maximum,
+	fdr::sByte *Buffer )
+{
+qRH
+	n4jre::rJByteArray Array;
+qRB
+	if ( Maximum > 5 )
+		Maximum = 5;
+
+	Array.Init( (long)Maximum );
+
+	Maximum = Stream_.Read( Array, 0, (long)Maximum );
+
+	if ( Maximum != -1 )
+		memcpy( Buffer, Array.Core(), Array.Size() );
+	else
+		Maximum = 0;
+qRR
+qRT
+	// No need to 'delete' 'Array'.
+qRE
+	return Maximum;
+}
+
 namespace {
-	namespace{
-		void GetInfo_(
-			jint Version,
-			str::dString &Info )
+	typedef n4all::cLauncher cLauncher_;
+
+	class sLauncher_
+	: public cLauncher_ {
+	protected:
+		virtual void N4ALLLaunch(
+			void *Function,
+			n4all::cCaller &RawCaller ) override
+		{
+			sCaller Caller;
+			sJObject Return;
+
+			Caller.Init( RawCaller );
+
+			Return = ( (fFunction *)Function )( Caller );
+
+			RawCaller.SetReturnValue( n4jre::t_Undefined, Return );	// 'sJObject' is a generic type, so no type is specified.
+		}
+		virtual void N4ALLInfo( str::dString &Info ) override
 		{
 		qRH
 			flx::rStringOFlow BaseFlow;
@@ -44,125 +82,131 @@ namespace {
 			BaseFlow.Init( Info );
 			Flow.Init( BaseFlow );
 
-			Flow << sclmisc::SCLMISCProductName << " v" << SCLJREProductVersion << " - JNI v" << ( ( Version & 0xff00 ) >> 16 ) << '.' << ( Version & 0xff )  << txf::nl
-				<< txf::pad << "Build : " __DATE__ " " __TIME__ " (" <<  cpe::GetDescription() << ')';
+			SCLJREInfo( Flow );
 		qRR
 		qRT
 		qRE
 		}
-	}
+	public:
+		void Init( void )
+		{}
+	};
+}
 
-	jstring GetInfo_( JNIEnv *Env )
+n4jre::fNew_Object scljre::New_Object_ = NULL;
+n4jre::fDelete scljre::Delete_ = NULL;
+n4jre::fThrow scljre::Throw_ = NULL;
+
+n4jre::fMalloc n4jre::N4JREMalloc = NULL;
+n4jre::fFree n4jre::N4JREFree = NULL;
+
+namespace {
+	template <typename function> void Assign_(
+		const function &Source,
+		function &Target )
 	{
-		jre::sString JString;
-	qRH
-		str::wString Info;
-	qRB
-		Info.Init();
-		GetInfo_( Env->GetVersion(), Info );
+		if ( Source == NULL )
+			qRFwk();
 
-		JString.Init( Info );
+		Target = Source;
+	}
+}
+
+n4all::cLauncher *scln4a::SCLN4ARegister(
+	n4all::cRegistrar &RegistrarCallback,
+	void *UP )
+{
+	n4all::cLauncher *Launcher = NULL;
+qRH
+	scljre::sRegistrar Registrar;
+qRB
+	const n4jre::gShared &Shared = *( const n4jre::gShared* )UP;
+
+	Assign_( Shared.New_Object, New_Object_ );
+	Assign_( Shared.Delete, Delete_ );
+	Assign_( Shared.Malloc, n4jre::N4JREMalloc );
+	Assign_( Shared.Free, n4jre::N4JREFree );
+	Assign_( Shared.Throw, Throw_ );
+
+	Registrar.Init( RegistrarCallback );
+	SCLJRERegister( Registrar );
+
+	Launcher = new sLauncher_;
+
+	if ( Launcher == NULL )
+		qRAlc();
+qRR
+	if ( Launcher != NULL )
+		delete Launcher;
+qRT
+qRE
+	return Launcher;
+}
+
+void scljre::Throw( const str::dString &Message )
+{
+qRH
+	qCBUFFERr Buffer;
+qRB
+	Throw( Message.Convert( Buffer ) );
+qRR
+qRT
+qRE
+}
+
+sJObject scljre::Null( void )
+{
+	return New( NULL, NULL );
+}
+
+namespace {
+	template <typename primitive, typename wrapper> sJObject Wrap_( primitive Value )
+	{
+		sJObject Object = NULL;
+	qRH
+		wrapper Wrapper;
+	qRB
+		Wrapper.Init( Value );
+
+		Object = Wrapper();
+
+		Wrapper.reset( false );
 	qRR
 	qRT
 	qRE
-		return JString;
+		return Object;
 	}
 }
 
-jstring scljre::Info_( JNIEnv *Env )
+sJObject scljre::Integer( sJInt Value )
 {
-	return GetInfo_( Env );
+	return Wrap_<sJInt, java::lang::rInteger>( Value );
 }
 
-
-
-namespace {
-	bch::qBUNCHwl( sFunction_ ) Functions_;
-}
-
-void scljre::sRegistrar::Register( sFunction_ Function )
+sJObject scljre::Long( sJLong Value )
 {
-	Functions_.Append( Function );
+	return Wrap_<sJLong, java::lang::rLong>( Value );
 }
 
-namespace {
-	err::err___ Error_;
-	sclerror::rError SCLError_;
-	scllocale::rRack Locale_;
-	sclmisc::sRack Rack_;
-
-	void ERRFinal_( JNIEnv *Env )
-	{
-		err::buffer__ Buffer;
-
-		const char *Message = err::Message( Buffer );
-
-		ERRRst();	// To avoid relaunching of current error by objects of the 'FLW' library.
-
-		Env->ThrowNew( Env->FindClass( "java/lang/Exception" ), Message );
-	}
-}
-
-void scljre::Register_( JNIEnv *Env )
+sJObject scljre::String( const str::dString &UTF )
 {
-qRFH
-	str::wString Location;
-qRFB
-	sRegistrar Registrar;
+	sJObject Object = NULL;
+qRH
+	rJString Charset;
+	rJByteArray Bytes;
+	scljre::java::lang::rString JString;
+qRB
+	Charset.Init( "UTF-8", n4jre::hOriginal );
 
-	cio::Initialize( cio::GetConsoleSet() );
-	Rack_.Init( Error_, SCLError_, cio::GetSet( cio::t_Default ), Locale_ );
+	Bytes.Init( UTF );
 
-	Location.Init();
-	// TODO : Find a way to fill 'Location' with the path of the binary.
+	JString.Init( Bytes, Charset );
 
-	sclmisc::Initialize( Rack_, Location, qRPU );
+	Object = JString();
 
-	Registrar.Init();
-
-	Functions_.Init();
-	scljre::SCLJRERegister( Registrar );
-
-	jniq::SetGlobalEnv( Env );
-qRFR
-qRFT
-qRFE( ERRFinal_( Env ) )
+	JString.reset( false );	// So the underlying object is not destroyed, as it will be used later.
+qRR
+qRT
+qRE
+	return Object;
 }
-
-jobject scljre::Launch_(
-	JNIEnv *Env,
-	int Index,
-	jobjectArray Args )
-{
-	jobject Result = NULL;
-qRFH
-	sArguments Arguments;
-qRFB
-	if ( !Functions_.Exists( Index ) )
-		qRGnr();
-
-	Arguments.Init( Args );
-
-	Result = Functions_( Index )( Env, Arguments );
-
-	if ( sclerror::IsErrorPending() )
-		qRAbort();	// To force the handling of a pending error.
-qRFR
-	if ( ERRType == err::t_Abort ) {
-		if ( jniq::GetEnv()->ExceptionOccurred() != NULL )
-			ERRRst();	// Let the Java exception do the error handling work.
-	}
-qRFT
-qRFE( ERRFinal_( Env ) )
-	return Result;
-}
-
-qGCTOR( scljre )
-{
-	Error_.Init();
-	SCLError_.Init();
-	Locale_.Init();
-}
-
-
-

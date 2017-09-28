@@ -28,132 +28,343 @@
 #  define SCLJRE_DBG
 # endif
 
-# include "jniq.h"
+# include "n4jre.h"
+# include "scln4a.h"
 
-# include "err.h"
+#ifdef H
+#  define SCLJRE_H_ H
+#  undef H
+# endif
 
 namespace scljre {
-	jstring Info_( JNIEnv *Env );
+	using namespace n4jre;
 
-	void Register_( JNIEnv *Env );
+	extern n4jre::fNew_Object New_Object_;
+	extern n4jre::fThrow Throw_;
 
-	jobject Launch_(
-		JNIEnv *Env,
-		int Index,
-		jobjectArray Args );
+	// Termination method.
+	inline void Fill_(
+		int Indice,
+		sValue *Values )
+	{}
 
-	inline void Throw( const char *Text )
+	template <typename arg, typename ...args> inline void Fill_(
+		int Indice,
+		sValue *Values,
+		arg &Arg,
+		args&... Args )
 	{
-		JNIEnv *Env = jniq::GetEnv();
-
-		if ( Env->ExceptionOccurred() == NULL )
-			Env->ThrowNew( Env->FindClass( "java/lang/Exception"), Text );
-
-		qRAbort();
+		Values[Indice].Init( Arg );
+		Fill_( Indice + 1, Values, Args... );
 	}
 
-	inline void Throw( const str::dString &Text )
+	template <typename ...args> cObject *New(
+		const char *Class,
+		const char *Signature,
+		args&... Args )
 	{
-	qRH
-		qCBUFFERr Buffer;
-	qRB
-		Throw( Text.Convert( Buffer ) );
-	qRR
-	qRT
-	qRE
+		sValue Values[sizeof...(args)+1];	/// '+1' only to avoid attempt to create a array of size 0.
+		Values[sizeof...( args )].Type = t_Undefined;
+
+		Fill_( 0, Values, Args... );
+
+		return New_Object_( Class, Signature, sizeof...( args ), Values );
 	}
 
-	class sArguments
+	extern n4jre::fDelete Delete_;
+
+	inline void Throw( const char *Message )
 	{
+		return Throw_( Message );
+	}
+
+	void Throw( const str::dString &Text );
+
+	class rObject {
 	private:
-		jobjectArray Args_;
-		mutable jint Index_;
+		qRMV( cObject, O_, Object_ );
 	public:
 		void reset( bso::sBool P = true )
 		{
-			Args_ = NULL;
-			Index_ = 0;
-		}
-		qCDTOR( sArguments );
-		void Init( jobjectArray Args )
-		{
-			Args_ = Args;
-			Index_ = 0;
-		}
-		jobject Get( JNIEnv *Env = NULL ) const
-		{
-			if ( Args_ == NULL )
-				qRFwk();
+			if ( P ) {
+				if ( Object_ != NULL )
+					Delete_( Object_ );
+			}
 
-			Env = jniq::GetEnv( Env );
-
-			if ( Index_ >= Env->GetArrayLength( Args_ ) )
-				qRFwk();
-
-			return Env->GetObjectArrayElement( Args_, Index_++ );
+			Object_ = NULL;
 		}
-		template < typename arg> void InitAndGet( arg &Arg ) const
+		qCDTOR( rObject );
+		void Init( n4jre::cObject *Object )
 		{
-			Arg.Init( Get() );
+			reset();
+
+			Object_ = Object;
 		}
-		template < typename arg, typename ...args> void  InitAndGet(
-			arg &Arg,
-			args &...Args ) const
+		cObject *operator()( void )
 		{
-			InitAndGet( Arg );
-			InitAndGet( Args... );
+			return &O_();
+		}
+		void Set(
+			const char *Name,
+			const char *Signature,
+			sJObject Value )
+		{
+			return O_().Set( Name, Signature, Value );
+		}
+		template <typename object> void Set(
+			const char *Name,
+			object &Object )
+		{
+			qRVct();
+			Set( Name, NULL, Object );
+		}
+		template <typename object, typename ...args> void CallObjectMethod(
+			const char *Method,
+			const char *Signature,
+			object &Object,
+			args&... Args )
+		{
+			sValue Values[sizeof...(args)+1];	/// '+1' only to avoid attempt to create a array of size 0.
+			sValue Return;
+
+			Values[sizeof...( args )].Type = t_Undefined;
+
+			Fill_( 0, Values, Args... );
+
+			Return.Init( Object );
+
+			O_().CallObjectMethod( Method, Signature, Return, sizeof...( args ), Values );
+		}
+		template <typename ...args> sJInt CallIntMethod(
+			const char *Method,
+			const char *Signature,
+			args&... Args )
+		{
+			sValue Values[sizeof...(args)+1];	/// '+1' only to avoid attempt to create a array of size 0.
+			Values[sizeof...( args )].Type = t_Undefined;
+
+			Fill_( 0, Values, Args... );
+
+			return O_().CallIntMethod( Method, Signature, sizeof...( args ), Values );
+		}
+		template <typename ...args> sJLong CallLongMethod(
+			const char *Method,
+			const char *Signature,
+			args&... Args )
+		{
+			sValue Values[sizeof...(args)+1];	/// '+1' only to avoid attempt to create a array of size 0.
+
+			Fill_( 0, Values, Args... );
+
+			return O_().CallLongMethod( Method, Signature, sizeof...( args ), Values );
 		}
 	};
 
-	typedef jobject (* sFunction_)( JNIEnv *, const sArguments &);
-
-	class sRegistrar
-	{
+	class rCore_ {
+	protected:
+		rObject Object_;
 	public:
 		void reset( bso::sBool P = true )
 		{
+			Object_.reset( P );
 		}
-		qCDTOR( sRegistrar )
-		void Init( void )
+		qCDTOR( rCore_ );
+		void Init( n4jre::cObject *Object )
 		{
+			Object_.Init( Object );
 		}
-		void Register( sFunction_ Function );
-		template <typename function, typename ...functions> void Register(
-			function Function,
-			functions... Functions )
+		cObject *operator()( void )
 		{
-			Register( Function );
-			Register( Functions... );
+			return Object_.operator()();
 		}
 	};
 
-	void SCLJRERegister( sRegistrar &Registrar );	// To overload by user.
-	extern const char *SCLJREProductVersion;	// To define by user.
+
+# ifdef B
+#  define SCKJRE_B_ B
+# undef B
+# endif
+
+# ifdef A
+#  define SCKJRE_A_ A
+# undef A
+# endif
+
+// Before
+# define B( name )\
+	class r##name\
+	: public rCore_\
+	{\
+	public:\
+		using rCore_::Init
+
+// After
+# define A	}
+
+
+	namespace java {
+		namespace io {
+			B( InputStream );
+			sJInt Read( void )
+			{
+				return Object_.CallIntMethod( "read", "()I" );
+			}
+			sJInt Read(
+				rJByteArray &b,
+				sJInt off,
+				sJInt len )
+			{
+				return Object_.CallIntMethod( "read", "([BII)I", b, off, len );
+			}
+			A;
+		}
+
+		namespace lang {
+			B( Integer );
+				void Init( sJInt Integer )
+				{
+					Init( New( "Ljava/lang/Integer;", "(I)V", Integer ) );
+				}
+				sJInt IntValue( void )
+				{
+					return Object_.CallIntMethod( "intValue", "()I" );
+				}
+			A;
+
+			B( Long );
+				void Init( sJLong Long )
+				{
+					Init( New( "Ljava/lang/Long;", "(J)V", Long ) );
+				}
+				sJLong LongValue( void )
+				{
+					return Object_.CallLongMethod( "longValue", "()J" );
+				}
+			A;
+
+			B( String );
+				void Init(
+					rJByteArray &bytes,
+					rJString &charsetName )
+				{
+					Init( New( "Ljava/lang/String;", "([BLjava/lang/String;)V", bytes, charsetName ) );
+				}
+				void GetBytes(
+					rJString &charsetName,
+					rJByteArray &Result )
+				{
+					return Object_.CallObjectMethod( "getBytes", "(Ljava/lang/String;)[B", Result, charsetName );
+				}
+			A;
+		}
+	}
+
+# undef B
+# undef A
+
+# ifdef SCLJRE_B_
+# define B SCLJRE_B_
+# endif
+
+# ifdef SCLJRE_A_
+# define A SCLJRE_A_
+# endif
+
+	sJObject Null( void );
+	sJObject Integer( sJInt Integer );
+	sJObject Long( sJLong Long );
+	sJObject String( const str::dString &UTF );
+
+	typedef fdr::rIDressedDriver rIDriver_;
+
+	class rInputStreamIDriver
+	: public rIDriver_ {
+	private:
+		java::io::rInputStream Stream_;
+	protected:
+		virtual fdr::sSize FDRRead(
+			fdr::sSize Maximum,
+			fdr::sByte *Buffer ) override;
+		virtual void FDRDismiss( bso::sBool Unlock ) override
+		{}
+		virtual fdr::sTID FDRITake( fdr::sTID Owner ) override
+		{
+			return Owner;
+		}
+	public:
+		void reset( bso::sBool P = true )
+		{
+			rIDriver_::reset( P );
+			tol::reset( P, Stream_ );
+		}
+		qCVDTOR( rInputStreamIDriver );
+		void Init( cObject *Object )
+		{
+			rIDriver_::Init( fdr::ts_Default );
+			Stream_.Init( Object );
+		}
+	};
+
+	typedef scln4a::sCaller sCaller_;
+
+	class sCaller
+	: public sCaller_ {
+	private:
+		bso::sU8 Index_;
+	public:
+		void reset( bso::sBool P = true )
+		{
+			sCaller_::reset( P );
+			Index_ = 0;
+		}
+		qCDTOR( sCaller );
+		void Init( n4all::cCaller &Caller )
+		{
+			sCaller_::Init( Caller );
+
+			Index_ = 0;
+		}
+		sJObject Get( void )
+		{
+			sJObject Object;
+
+			C_().GetArgument( Index_++, n4jre::t_Undefined, &Object );
+
+			return Object;
+		}
+		void Get( str::dString &String )
+		{
+		qRH
+			scljre::java::lang::rString JString;
+			rJString Charset;
+			rJByteArray Result;
+		qRB
+			Charset.Init( sizeof( "UTF-8" ), "UTF-8", n4jre::hOriginal );
+			JString.Init( Get() );
+
+			Result.Init();
+			JString.GetBytes( Charset, Result );
+
+			String.Append( (bso::char__ *)Result.Core(), Result.Size() );
+		qRR
+		qRT
+		qRE
+		}
+	};
+
+
+	typedef sJObject ( fFunction )( sCaller &Caller );
+
+	typedef scln4a::sRegistrar<fFunction> sRegistrar;
+
+	void SCLJREInfo( txf::sOFlow &Flow );	// To define by user.
+	void SCLJRERegister( sRegistrar &Registrar );	// To define by user
 }
 
-#define SCLJRE_DEF( name )\
-	extern "C" JNIEXPORT jstring JNICALL Java_##name##_info(\
-		JNIEnv *Env,\
-		jclass)\
-	{\
-		return scljre::Info_( Env );\
-	}\
-\
-	extern "C" JNIEXPORT void JNICALL Java_##name##_register(\
-		JNIEnv *Env,\
-		jclass)\
-	{\
-		scljre::Register_( Env );\
-	}\
-\
-	extern "C" JNIEXPORT jobject JNICALL Java_##name##_wrapper(\
-		JNIEnv *Env,\
-		jclass,\
-		jint Index,\
-		jobjectArray Args )\
-	{\
-		return scljre::Launch_( Env, Index, Args );\
-	}
+# define SCLJRE_F( name ) scljre::sJObject name( scljre::sCaller &Caller )
 
+# ifdef SCLJRE_H_
+#  define H SCLJRE_H_
+# endif
 
 #endif

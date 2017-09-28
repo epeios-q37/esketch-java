@@ -17,28 +17,9 @@
 	along with the Epeios framework.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#define JREBSE_COMPILATION_
+#define STKCRT_COMPILATION_
 
-#include "jrebse.h"
+#include "stkcrt.h"
 
-using namespace jrebse;
-
-#define N( ns, hierarchy, name )\
-	const char *jrebse::ns::name::Name = hierarchy #name;\
-	const char *jrebse::ns::name::Signature = "L" hierarchy #name ";";
-
-#define S "/"
-
-#define JAVA "java" S
-
-#define JAVA_IO JAVA "io" S
-N( java::io, JAVA_IO, PrintStream );
-N( java::io, JAVA_IO, InputStream );
-
-#define JAVA_LANG JAVA "lang" S
-N( java::lang, JAVA_LANG, Integer );
-N( java::lang, JAVA_LANG, Long );
-N( java::lang, JAVA_LANG, Object );
-N( java::lang, JAVA_LANG, String );
-N( java::lang, JAVA_LANG, System );
+using namespace stkcrt;
 

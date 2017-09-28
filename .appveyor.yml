@@ -1,5 +1,5 @@
 environment:
-  version: 20170620
+  version: 20170928
   affix: esketch
   ext: dll
   dir: $(affix)-java-v$(version)
@@ -21,12 +21,9 @@ os :
 # - Visual Studio 2013
 
 test_script:
-- set oddity=
-- if "%platform%"=="x86" set oddity= (x86)
-- set JDK="Program Files%oddity%/Java/jdk%jdk_ver%/bin/"
-- echo %JDK%
+# - C:/%JDK%java eSketchTest
 - C:/%JDK%javac src/*.java -d .
-- C:/%JDK%java eSketchDemo
+- echo "********** 'eSketch' TEST BEGIN **********" && C:/%JDK%java eSketchTest && echo "********** 'eSketch' TEST END **********"
 # - java -Djava.library.path=x64/Release eSketchDemo
 
 # matrix:
@@ -35,9 +32,24 @@ test_script:
 
 skip_tags: true
 
+before_build:
+- git clone https://github.com/epeios-q37/jreq.git
+- cd jreq
+- msbuild jreq.vcxproj
+- copy jreq.dll ..
+- copy jreq.xcfg ..
+- copy jreq.xlcl ..
+- set oddity=
+- if "%platform%"=="x86" set oddity= (x86)
+- set JDK="Program Files%oddity%/Java/jdk%jdk_ver%/bin/"
+- echo %JDK%
+- C:/%JDK%javac src/*.java -d .
+- echo "***** 'JREq' TEST BEGIN *****" && C:/%JDK%java JREqTest && echo "***** 'JREq' TEST END *****"
+- cd ..
+
 after_build:
 - mkdir %dir% || exit 1
-- cp %affix%jre.%ext% %dir%\%affix%jre_%platform%.%ext% || exit 1
+- copy %affix%jre.%ext% %dir%\%affix%jre_%platform%.%ext% || exit 1
 - 7z a %zip% %dir%
 
 artifacts:

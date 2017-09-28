@@ -524,8 +524,8 @@
   <Translation language="fr">Divergence d'encodage</Translation>
   <Translation language="en">Encoding discrepancy</Translation>
  </Translations>
- <Translations text="TheText">
-  <Translation language="fr">Texte provenant du composant natif !</Translation>
-  <Translation language="en">Text from the natif component !</Translation>
+ <Translations text="Argument">
+  <Translation language="fr">Argument reçu du composant : '%1'.</Translation>
+  <Translation language="en">Argument received from component : '%1'.</Translation>
  </Translations>
 </Locale>
